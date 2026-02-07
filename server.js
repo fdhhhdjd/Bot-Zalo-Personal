@@ -35,47 +35,80 @@ app.post('/send-message', async (req, res) => {
   }
 });
 
-// ✅ WEBHOOK ZALO - FIXED RAW BODY
-app.post('/webhook', (req, res) => {
-  let body = [];
+// 🆕 GET UPDATES - Lấy tin nhắn + user_id từ bot
+app.get('/get-updates', async (req, res) => {
+  const { offset } = req.query;
   
-  req.on('data', (chunk) => {
-    body.push(chunk);
-  });
-  
-  req.on('end', () => {
-    const buffer = Buffer.concat(body);
-    const data = buffer.toString();
+  try {
+    console.log('📨 Fetching updates...', { offset });
     
-    try {
-      const parsed = JSON.parse(data);
-      console.log('📨 ZALO WEBHOOK RAW:', data);
-      console.log('🆔 USER_ID:', parsed.user_id || parsed.from_uid || parsed.sender?.id || 'Not found');
-      console.log('👤 USER INFO:', parsed);
-      
-      // Reply auto để test
-      if (parsed.user_id) {
-        setTimeout(() => {
-          axios.post(`${API_BASE}/sendMessage`, {
-            token: BOT_TOKEN,
-            chat_id: parsed.user_id,
-            message: { text: '✅ Bot nhận webhook OK! UserID của bạn: ' + parsed.user_id }
-          }).catch(console.error);
-        }, 1000);
-      }
-      
-      res.status(200).json({ status: 'OK' });
-    } catch (e) {
-      console.log('Webhook raw (not JSON):', data.slice(0, 500));
-      res.status(200).json({ status: 'OK' });
+    const response = await axios.post(`https://bot-api.zaloplatforms.com/bot${BOT_TOKEN}/getUpdates`, {
+      timeout: 30000,
+      ...(offset && { offset: parseInt(offset) })
+    });
+    
+    console.log('📄 Raw response:', JSON.stringify(response.data, null, 2).slice(0, 500));
+    
+    // ✅ SAFE PARSING theo Zalo docs
+    const apiResult = response.data;
+    if (!apiResult.ok) {
+      throw new Error(apiResult.description || 'API not OK');
     }
-  });
-  
-  req.on('error', (err) => {
-    console.error('Webhook stream error:', err);
-    res.status(500).send('Error');
-  });
+    
+    // Fix: Kiểm tra result là array
+    const updates = Array.isArray(apiResult.result) ? apiResult.result : [];
+    
+    console.log(`✅ ${updates.length} updates OK`);
+    
+    // ✅ SAFE forEach với array check
+    const users = {};
+    updates.forEach((update, index) => {
+      try {
+        const msg = update.message;
+        if (msg && typeof msg === 'object') {
+          const userId = msg.chat?.id?.toString() || msg.from?.id?.toString();
+          const userName = msg.from?.first_name || msg.chat?.title || `User #${index}`;
+          
+          if (userId) {
+            users[userId] = { 
+              user_id: userId, 
+              user_name: userName, 
+              last_message: (msg.text || '').slice(0, 100),
+              date: msg.date 
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('Parse update error:', e);
+      }
+    });
+    
+    res.json({
+      success: true,
+      ok: apiResult.ok,
+      total_updates: updates.length,
+      users: Object.values(users),
+      next_offset: updates.length ? (updates[updates.length - 1].update_id || 0) + 1 : parseInt(offset) || 0,
+      raw_result_length: Array.isArray(apiResult.result) ? apiResult.result.length : 'not array'
+    });
+    
+  } catch (error) {
+    console.error('❌ Full error:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    
+    res.status(500).json({
+      error: true,
+      message: error.message,
+      details: error.response?.data?.description || 'Unknown error'
+    });
+  }
 });
+
+
+
 
 // ✅ Health check
 app.get('/health', (req, res) => {
