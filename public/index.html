@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Web Không Khó - Zalo Bot Pro</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <!-- Header Premium -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <img src="logo.jpg" alt="Code Web Không Khó" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <svg class="logo-svg" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+            <text x="10" y="45" font-family="Inter, sans-serif" font-size="28" font-weight="700" fill="#00d4ff" letter-spacing="-0.5px">Code Web</text>
+            <text x="10" y="45" font-family="Inter, sans-serif" font-size="28" font-weight="700" fill="#6366f1" letter-spacing="-0.5px">Không Khó</text>
+          </svg>
+        </div>
+        <div class="header-right">
+          <button id="themeToggle" class="theme-btn" title="Toggle Dark/Light">🌙</button>
+          <span class="status-indicator online"></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="container glass">
+        <h1 class="title">Zalo Bot Tester Pro</h1>
+        <p class="subtitle">Gửi tin nhắn Zalo OA siêu nhanh & an toàn</p>
+        
+        <form id="messageForm" class="form">
+          <div class="input-group">
+            <label>User ID</label>
+            <input type="text" id="userId" placeholder="Nhập User ID từ Zalo OA..." required>
+            <span class="input-icon">👤</span>
+          </div>
+          <div class="input-group">
+            <label>Tin nhắn</label>
+            <textarea id="message" placeholder="Nội dung tin nhắn... (hỗ trợ text, emoji)" rows="4" required></textarea>
+            <span class="input-icon">💬</span>
+          </div>
+          <button type="submit" class="btn-primary gradient">
+            <span>Gửi Ngay</span>
+            <div class="btn-ripple"></div>
+          </button>
+        </form>
+        
+        <div id="result" class="result"></div>
+        
+        <div class="features">
+          <div class="feature-card">
+            <span>⚡</span>
+            <span>Realtime Response</span>
+          </div>
+          <div class="feature-card">
+            <span>🔒</span>
+            <span>Token Bảo Mật</span>
+          </div>
+          <div class="feature-card">
+            <span>📱</span>
+            <span>Fully Responsive</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
