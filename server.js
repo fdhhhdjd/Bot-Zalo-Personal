@@ -11,29 +11,49 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const API_BASE = 'https://bot.zapps.me/api';
 
 // ✅ SEND MESSAGE (Giữ nguyên)
 app.post('/send-message', async (req, res) => {
   const { user_id, message } = req.body;
+  
+  console.log('📤 Sending to:', user_id);
+  
   if (!user_id || !message) {
-    return res.status(400).json({ error: 'Thiếu user_id hoặc message' });
+    return res.status(400).json({ error: 'Thiếu user_id/message' });
   }
 
   try {
-    const response = await axios.post(`${API_BASE}/sendMessage`, {
-      token: BOT_TOKEN,
+    // ✅ Zalo Bot API endpoint đúng
+    const sendUrl = `https://bot-api.zaloplatforms.com/bot${BOT_TOKEN}/sendMessage`;
+    
+    const response = await axios.post(sendUrl, {
       chat_id: user_id,
-      message: { text: message }
+      text: message  // Format đơn giản hơn
     }, {
-      headers: { 'Content-Type': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      timeout: 15000
     });
+    
+    console.log('✅ SUCCESS:', response.data);
     res.json({ success: true, data: response.data });
+    
   } catch (error) {
-    console.error('Send error:', error.response?.data || error.message);
-    res.status(500).json({ error: error.response?.data?.message || error.message });
+    console.error('❌ ERROR:', {
+      status: error.response?.status,
+      data: error.response?.data?.toString().slice(0, 200),
+      url: 'bot-api.zaloplatforms.com/sendMessage'
+    });
+    
+    res.status(500).json({ 
+      error: 'Zalo API 500 - user_id sai hoặc bot chưa chat user này',
+      user_id: user_id,
+      fix: '1. Chat "hello" từ Zalo → 2. Dùng user_id mới'
+    });
   }
 });
+
 
 // 🆕 GET UPDATES - Lấy tin nhắn + user_id từ bot
 app.get('/get-updates', async (req, res) => {
