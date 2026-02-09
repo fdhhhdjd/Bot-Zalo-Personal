@@ -13,20 +13,17 @@
   <img src="./assets/3.png" width="1000" />
 </p>
 
-
-
 ## Giới thiệu
 
 Đây là Chat Bot Zalo Tự động khi gửi từ hệ thống, đây là mẫu bạn có thể dựa trên và nâng cấp theo doanh nghiệp hay hệ thống của bạn.
 
 ## Link Tạo: https://bot.zapps.me/docs/create-bot
 
-
-
 ## Cách chạy dự án
 
 ### 1️⃣ Yêu cầu
 - NodeJs Version >= 20
+- Có tài khoản Telegram
  
 ### 2️⃣ Khởi động hệ thống
 
